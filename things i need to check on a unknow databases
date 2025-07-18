@@ -1,0 +1,387 @@
+Basic Server Info
+
+mysql -e "SELECT VERSION();"
+
+    ✅ MySQL version (important for compatibility/security)
+
+2️⃣ Database & Table Overview
+
+SHOW DATABASES;
+USE your_database_name;
+SHOW TABLES;
+
+Then:
+
+SELECT TABLE_SCHEMA, TABLE_NAME, ENGINE, TABLE_ROWS, DATA_LENGTH/1024/1024 AS size_mb 
+FROM information_schema.tables 
+WHERE TABLE_SCHEMA = 'your_database_name';
+
+    ✅ Number of tables, storage engines used (InnoDB or MyISAM)
+
+    ✅ Table sizes, row counts
+=====================================================================================================
+3️⃣ Check Storage Engines
+
+SELECT ENGINE, COUNT(*) FROM information_schema.tables 
+WHERE table_schema = 'your_database_name' GROUP BY ENGINE;
+
+----------------------
+
+
+SELECT ENGINE, COUNT(*) FROM information_schema.tables 
+WHERE table_schema = 'exchangeDB' GROUP BY ENGINE;
+
+-------------------------------------
+
+SELECT table_name, ROUND(data_length/1024/1024,2) AS data_MB,
+       ROUND(index_length/1024/1024,2) AS index_MB
+FROM information_schema.tables
+WHERE table_schema = 'exchangeDB';
+
+    ✅ You’ll know if it's transactional (InnoDB) or not (MyISAM)
+====================================================================================================
+4️⃣ Check Primary Keys and Indexes
+
+SELECT table_name, COUNT(*) AS indexes 
+FROM information_schema.statistics 
+WHERE table_schema = 'your_database_name' 
+GROUP BY table_name;
+
+SELECT table_name, constraint_type 
+FROM information_schema.table_constraints 
+WHERE constraint_type='PRIMARY KEY' 
+AND table_schema = 'your_database_name';
+
+    ✅ Are indexes used properly? Are primary keys missing?
+==========================================================================
+5️⃣ Check Database Size
+
+SELECT table_schema "DB Name", 
+       ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) "DB Size (MB)" 
+FROM information_schema.tables 
+GROUP BY table_schema;
+====================================================================================
+6️⃣ Slow Queries
+
+SHOW VARIABLES LIKE 'slow_query_log';
+SHOW VARIABLES LIKE 'slow_query_log_file';
+SHOW VARIABLES LIKE 'long_query_time';
+
+    ✅ Enable slow query log if not already
+
+SET GLOBAL slow_query_log = 'ON';
+SET GLOBAL long_query_time = 2;
+==========================================================================================
+7️⃣ User Privileges (Security Check)
+
+SELECT user, host FROM mysql.user;
+SHOW GRANTS FOR 'root'@'localhost';
+
+    ✅ Check who has full access (watch out for % wildcard)
+===========================================================================
+8️⃣ Check Buffer Pool Size
+
+SHOW GRANTS FOR 'root'@'localhost';
+===========================================================================
+9️⃣ Check Table Status (Corruption, Engine)
+
+CHECK TABLE your_table_name;
+SHOW TABLE STATUS FROM your_database_name;
+===========================================================================
+🔟 Check Active Connections & Queries
+
+SHOW PROCESSLIST;
+================================================================
+
+prasanth@codegama-vivobook-asuslaptop-x415ea-x415ea:~/Downloads$ sudo scp -i /home/prasanth/Downloads/keyoaty   /home/prasanth/Downloads/sql  user@ipp:/hme/
+
+ 
+~/Downloads$ sudo scp -i /home/codegama/Downloads/exchange_qa.sql   /home/codegama/Downloads/sql tarun@18.212.11.23:/hme/
+======================================================================================================================================================
+                                             INDEX QUERY PERFORMANCE
+https://chatgpt.com/share/685bc211-68f4-8012-aa5e-c58992354afc
+
+======================================================================================================================================================
+CHANGE MASTER TO
+  MASTER_HOST='172.31.93.142',
+  MASTER_USER='replic',
+  MASTER_PASSWORD='tarun501XTg@',
+  MASTER_LOG_FILE='prod-binlog.000040',
+  MASTER_LOG_POS=157,
+  GET_MASTER_PUBLIC_KEY = 1;
+  
+ DELIMITER $$
+
+CREATE PROCEDURE PAYMENT_ORDER_FAILED()
+BEGIN
+    SELECT merchant_id,customer_name
+    FROM orders
+    WHERE status = 5;
+END $$
+
+DELIMITER ;
+
+==========================================================================================
+
+SELECT
+    TABLE_NAME,
+    INDEX_NAME,
+    COLUMN_NAME,
+    NON_UNIQUE,
+    INDEX_TYPE
+FROM
+    information_schema.STATISTICS
+WHERE
+    TABLE_SCHEMA = 'your_database_name'
+    
+========================================================================================
+SHOW VARIABLES LIKE 'innodb_buffer_pool_size';
+SHOW VARIABLES LIKE 'max_connections';
+SHOW VARIABLES LIKE 'character_set_server';
+
+========================================================================================
+
+SELECT table_name, engine FROM information_schema.tables WHERE table_schema = 'snapgopay_pay';
++------------------------+--------+
+| TABLE_NAME             | ENGINE |
++------------------------+--------+
+| admins                 | InnoDB |
+| bank_accounts          | InnoDB |
+| failed_jobs            | InnoDB |
+| inr_payouts            | InnoDB |
+
+========================================================================================
+SHOW VARIABLES LIKE 'innodb_buffer_pool%';
++-------------------------------------+----------------+
+| Variable_name                       | Value          |
++-------------------------------------+----------------+
+| innodb_buffer_pool_chunk_size       | 134217728      |
+| innodb_buffer_pool_dump_at_shutdown | ON             |
+| innodb_buffer_pool_dump_now         | OFF       
+
+========================================================================================
+
+SHOW TABLE STATUS FROM snapgopay_pay\G;
+*************************** 1. row ***************************
+           Name: admins
+         Engine: InnoDB
+        Version: 10
+     Row_format: Dynamic
+           Rows: 2
+ Avg_row_length: 8192
+    Data_length: 16384
+Max_data_length: 0
+   Index_length: 32768
+      Data_free: 0
+ Auto_increment: 4
+    Create_time: 2024-12-02 13:29:09
+    Update_time: NULL
+     Check_time: NULL
+      Collation: utf8mb4_unicode_ci
+       Checksum: NULL
+ Create_options: 
+        Comment:
+
+===========================================================================================================
+
+ TO FIND THE INDEXES IN A PARTICULAR DATABASE THAT WON'T USED ANY MORE
+               
+SELECT 
+    OBJECT_SCHEMA AS DATABASE_NAME, 
+    OBJECT_NAME AS TABLE_NAME, 
+    INDEX_NAME, 
+    COUNT_READ, 
+    COUNT_WRITE, 
+    COUNT_FETCH
+FROM 
+    performance_schema.table_io_waits_summary_by_index_usage
+WHERE 
+    INDEX_NAME IS NOT NULL
+    AND OBJECT_SCHEMA = 'snapgopay_pay'
+    AND COUNT_READ = 0
+    AND COUNT_WRITE = 0
+    AND COUNT_FETCH = 0
+ORDER BY 
+    OBJECT_NAME, INDEX_NAME;
+======================================================================================================================
+
+SELECT 
+object_schema,
+object_name, 
+index_name,         
+count_star AS total_operations,   
+count_read AS read_operations,     
+count_write AS write_operations FROM performance_schema.table_io_waits_summary_by_index_usage 
+WHERE object_schema = 'snapgopay_pay' 
+AND index_name IS NOT NULL ORDER BY count_star DESC LIMIT 10;
+
++---------------+--------------------+--------------------------------+------------------+-----------------+------------------+
+| object_schema | object_name        | index_name                     | total_operations | read_operations | write_operations |
++---------------+--------------------+--------------------------------+------------------+-----------------+------------------+
+| snapgopay_pay | transactions       | transactions_unique_id_unique  |        166889235 |       166889235 |                0 |
+| snapgopay_pay | users              | PRIMARY                        |        138549225 |       138549205 |               20 |
+| snapgopay_pay | transactions       | PRIMARY                        |         69432118 |        68965217 |           466901 |
+| snapgopay_pay | jobs               | jobs_queue_index               |         39126493 |        39126493 |                0 |
+| snapgopay_pay | payment_links      | PRIMARY                        |         36859153 |        36859153 |                0 |
+
+
+=========================================================================================================================
+
+Check Row Count:
+Use the information_schema.tables table to get the number of rows per table:
+---------------------------------------------------------------
+
+Copy
+SELECT table_name, table_rows
+FROM information_schema.tables
+WHERE table_schema = 'your_database_name'
+ORDER BY table_rows DESC;
+Note: table_rows is an estimate for InnoDB tables and may not be exact unless you run ANALYZE TABLE on the tables first.
+
+===============================================
+Check Storage Size:
+To find the size of tables (data + indexes), query information_schema.tables for data_length and index_length:
+--------------------------------------------------------------------------------------------------------
+SELECT 
+    table_name,
+    ROUND((data_length + index_length) / 1024 / 1024, 2) AS size_mb,
+    table_rows
+FROM information_schema.tables
+WHERE table_schema = 'your_database_name'
+ORDER BY (data_length + index_length) DESC;
+This returns the table size in megabytes (size_mb) and row count, sorted by size.
+==============================================================================================================================
+
+Check Table Sizes: Identify which tables use the most space (from your earlier question about table sizes):
+mysql> SELECT 
+       table_name,
+       ROUND((data_length + index_length) / 1024 / 1024, 2) AS size_mb,
+       table_rows
+       FROM information_schema.tables
+       WHERE table_schema = 'snapgopay_center'
+       ORDER BY (data_length + index_length) DESC;
++-------------------------------------------+---------+------------+
+| TABLE_NAME                                | size_mb | TABLE_ROWS |
++-------------------------------------------+---------+------------+
+| user_transactions                         |  824.63 |     948893 |
+| failed_jobs                               |  399.45 |      29452 |
+| whitelabel_merchant_payments              |   70.63 |      82461 |
+| payout_ledgers                            |   21.05 |      95887 |
+| jobs                                      |   10.97 |       9214 |
+| user_transaction_logs                     |    1.53 |         71 |
+
+
+=================================================================================================================================================
+What It Shows:
+Threads_connected — Number of currently open (active) connections to the MySQL server.
+
+✅ Example Output:
++-------------------+-------+
+| Variable_name     | Value |
++-------------------+-------+
+| Threads_connected | 12    |
+SHOW STATUS LIKE 'Threads_connected';
+=================================================================================================================================================
+
+What to Monitor Like a Pro DBA After Increasing max_connections
+🔍 Metric	                    How to Check	                           What to Observe
+🔵 Threads_connected	        SHOW STATUS LIKE 'Threads_connected';	      Real-time connected clients
+🔵 Max_used_connections	SHOW STATUS LIKE 'Max_used_connections';      Historical peak usage
+🔵 Connection_errors_*	        SHOW STATUS LIKE 'Connection_errors%';	      Any failed or rejected connections
+🔵 Aborted_connects	        SHOW STATUS LIKE 'Aborted_connects';	      Interrupted connections
+🟢 Performance_schema	        Query from performance_schema.threads	      Idle vs active threads
+🟢 OS RAM usage	        free -m, top, htop	                      Check MySQL RSS memory
+🟢 Swap usage	                vmstat, top, free	                      Should be 0 (no swap)
+🟢 CPU Load                   	top, uptime, htop	                      Keep load average < CPU cores
+🟡 Slow_query_log         	Enable & monitor	                      Too many slow queries = overuse
+🟠 waits and locks	        Use sys.innodb_lock_waits, performance_schema Identify locking due to overload
+
+========================================================================================================================================================
+
+✅ After You Increase
+Enable performance_schema if not already.
+
+Monitor using:
+SELECT * FROM performance_schema.threads;
+Check if many threads are in Sleep state — possible connection leaks.
+
+====================================================================================================================================================
+
+1. 🔄 Identify Slow or Blocked Threads
+Query:
+
+SELECT * 
+       FROM performance_schema.threads  
+       WHERE PROCESSLIST_TIME > 60 
+       AND PROCESSLIST_COMMAND NOT IN ('Sleep', 'Daemon');
+
+Helps find long-running queries.
+Investigate PROCESSLIST_INFO field to see what SQL is stuck.
+
+====================================================================================================================================================
+Find Idle Sleepers (Connection Leaks)
+
+SELECT * 
+      FROM performance_schema.threads 
+      WHERE PROCESSLIST_COMMAND = 'Sleep' 
+      AND PROCESSLIST_TIME > 300;
+
+Look for apps holding idle connections unnecessarily.
+Use this to adjust wait_timeout or apply connection pooling.
+
+======================================================================================================================================================================================
+ Monitor High Memory Usage Per Thread
+
+SELECT THREAD_ID, NAME, PROCESSLIST_USER, TOTAL_MEMORY, MAX_TOTAL_MEMORY 
+FROM performance_schema.threads 
+ORDER BY TOTAL_MEMORY DESC 
+LIMIT 5;
+Look for memory-heavy threads — may indicate:
+
+Bad queries
+Memory leak in thread buffers
+Abusive users
+======================================================================================================================================================================================
+ Track Query Content
+
+SELECT THREAD_ID, PROCESSLIST_USER, PROCESSLIST_INFO 
+FROM performance_schema.threads 
+WHERE PROCESSLIST_INFO IS NOT NULL 
+ORDER BY PROCESSLIST_TIME DESC 
+LIMIT 5;
+Identify the actual SQL being run.
+
+Useful for EXPLAIN plan analysis.
+======================================================================================================================================================================================
+🚦 Thread Type Breakdown (Health Check)
+
+SELECT TYPE, COUNT(*) AS count 
+FROM performance_schema.threads 
+GROUP BY TYPE;
+Helps identify if too many foreground (user) threads are active at once — may need pooling or traffic limiting.
+
+
+======================================================================================================================================================================================
+Find Last Server Restart Time----------------------------------------------------------------------------[MAX_USED_CONNECTIONS]
+To understand how recent the value is:
+
+
+SHOW GLOBAL STATUS LIKE 'Uptime';
+
+This tells you how many seconds MySQL has been running. You can convert that into a date/time:
+
+sql
+Copy
+Edit
+
+==================================================================================================================================================================
+free -h
+Example output:
+
+              total        used        free      shared  buff/cache   available
+Mem:            62G         4G         55G         64M        3.1G        57G
+total under Mem: shows your actual installed RAM (e.g., 62G = 64 GB)
+
+==================================================================================================================================================================
+
+
