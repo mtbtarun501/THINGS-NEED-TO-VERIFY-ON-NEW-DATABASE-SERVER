@@ -383,5 +383,12 @@ Mem:            62G         4G         55G         64M        3.1G        57G
 total under Mem: shows your actual installed RAM (e.g., 62G = 64 GB)
 
 ==================================================================================================================================================================
+This is the cache memory where saves each and every updates in a table and indexes .
+[Friday 12:17 PM] Tharun Kumar
+SHOW GLOBAL VARIABLES LIKE 'innodb_log_buffer_size';
+ 
+[Friday 12:18 PM] Tharun Kumar
+SHOW GLOBAL STATUS LIKE 'innodb_log_waits';
+==================================================================================================================================================================
 
 
