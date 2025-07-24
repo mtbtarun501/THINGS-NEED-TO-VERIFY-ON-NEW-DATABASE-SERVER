@@ -390,5 +390,11 @@ SHOW GLOBAL VARIABLES LIKE 'innodb_log_buffer_size';
 [Friday 12:18 PM] Tharun Kumar
 SHOW GLOBAL STATUS LIKE 'innodb_log_waits';
 ==================================================================================================================================================================
+                                                           PARTITIONING 
 
+Database changed-CHECK IS THERE ANY PARTITIONING ARE THERE IN THE DATABASE
+
+mysql> select name,function_id,type,type_desc,boundary_value_on_right from sys.partition_functions
+    -> ;
+ERROR 1146 (42S02): Table 'sys.partition_functions' doesn't exist
 
