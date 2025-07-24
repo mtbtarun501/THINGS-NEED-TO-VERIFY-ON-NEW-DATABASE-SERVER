@@ -397,4 +397,13 @@ Database changed-CHECK IS THERE ANY PARTITIONING ARE THERE IN THE DATABASE
 mysql> select name,function_id,type,type_desc,boundary_value_on_right from sys.partition_functions
     -> ;
 ERROR 1146 (42S02): Table 'sys.partition_functions' doesn't exist
+==================================================================================================================================================================
+✅ 3. Find Data Range for Partitioning
+Check which years exist:
 
+SELECT YEAR(created_at) AS year, COUNT(*) 
+FROM transactions 
+GROUP BY YEAR(created_at)
+ORDER BY year;
+
+==================================================================================================================================================================
