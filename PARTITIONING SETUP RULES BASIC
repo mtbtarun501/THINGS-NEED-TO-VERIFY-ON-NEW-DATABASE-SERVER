@@ -1,0 +1,195 @@
+GitHub Markdown does **not** support custom font sizes like "5x" directly — but it **does support heading levels** (`#` to `######`) to visually enlarge text.
+
+Here’s how heading sizes appear in GitHub:
+
+| Markdown | Rendered Size Approx. | Usage           |
+| -------- | --------------------- | --------------- |
+| `#`      | 🔵 5x (largest)       | Main Title      |
+| `##`     | 🔵 4x                 | Section Heading |
+| `###`    | 🔵 3x                 | Subsection      |
+| `####`   | 🔵 2x                 | Sub-subsection  |
+| `#####`  | 🔵 1.5x               | Minor Notes     |
+
+---
+
+### ✅ So here is your **Partitioning Guide** using `#` for 5x-style size (bold + largest possible size):
+
+---
+
+````markdown
+# 🚀 MYSQL PARTITIONING GUIDE FOR HIGH-PERFORMANCE DBS
+
+A practical, production-ready guide to implement **MySQL Partitioning** like a pro — optimized for large-scale **transactional data** (millions of rows).
+
+---
+
+# 📌 WHEN SHOULD YOU USE PARTITIONING?
+
+✅ **Your table has 10M+ rows**  
+✅ **Queries use date or ID range filters**  
+✅ **You're facing performance issues** due to full scans  
+✅ **Indexing alone is not helping**
+
+---
+
+# 🧠 CHOOSE THE RIGHT PARTITIONING TYPE
+
+| **Partition Type** | **Use Case** |
+|--------------------|--------------|
+| `RANGE`            | Date-based (e.g., `created_at`) ✅ |
+| `LIST`             | Category-based (e.g., region)      |
+| `HASH`             | Random uniform distribution        |
+| `KEY`              | MySQL internal hashing             |
+
+🎯 **Use `RANGE(created_at)` for transaction tables**
+
+---
+
+# 🛠️ DESIGN PARTITION STRATEGY
+
+```sql
+PARTITION BY RANGE (YEAR(created_at)) (
+  PARTITION p2021 VALUES LESS THAN (2022),
+  PARTITION p2022 VALUES LESS THAN (2023),
+  PARTITION p2023 VALUES LESS THAN (2024),
+  PARTITION p2024 VALUES LESS THAN (2025),
+  PARTITION pmax  VALUES LESS THAN MAXVALUE
+);
+````
+
+⚠️ **Partition column must be in PRIMARY KEY or UNIQUE KEY**
+
+---
+
+# 🏗️ CREATE PARTITIONED TABLE (PRO FORMAT)
+
+## ✅ STEP 1: SCHEMA
+
+```sql
+CREATE TABLE transactions_partitioned (
+  id BIGINT UNSIGNED NOT NULL,
+  user_id BIGINT,
+  amount DECIMAL(10,2),
+  status VARCHAR(20),
+  created_at DATETIME NOT NULL,
+  PRIMARY KEY (id, created_at)
+)
+```
+
+## ✅ STEP 2: PARTITIONING
+
+```sql
+PARTITION BY RANGE (YEAR(created_at)) (
+  PARTITION p2021 VALUES LESS THAN (2022),
+  PARTITION p2022 VALUES LESS THAN (2023),
+  PARTITION p2023 VALUES LESS THAN (2024),
+  PARTITION p2024 VALUES LESS THAN (2025),
+  PARTITION pmax  VALUES LESS THAN MAXVALUE
+);
+```
+
+---
+
+# 🧪 INSERT TEST DATA
+
+```sql
+INSERT INTO transactions_partitioned VALUES
+(1, 101, 200.00, 'SUCCESS', '2021-12-31 23:59:59'),
+(2, 102, 150.00, 'FAILED',  '2022-06-15 12:00:00'),
+(3, 103, 300.00, 'SUCCESS', '2023-11-01 09:00:00');
+```
+
+---
+
+# 🔍 VERIFY PARTITIONING
+
+```sql
+SELECT table_name, partition_name, table_rows
+FROM information_schema.partitions
+WHERE table_name = 'transactions_partitioned';
+```
+
+---
+
+# 📊 EXPLAIN QUERY PLAN
+
+```sql
+EXPLAIN SELECT * 
+FROM transactions_partitioned
+WHERE created_at BETWEEN '2023-01-01' AND '2023-12-31';
+```
+
+✅ **You should see only `p2023` being scanned**
+
+---
+
+# 🔐 PRO DBA TIPS
+
+| ✅ **Tip**                           | ⚠️ **Why**                |
+| ----------------------------------- | ------------------------- |
+| Always use `WHERE` on partition key | Enables partition pruning |
+| Avoid `INSERT IGNORE`, `REPLACE`    | Slows down writes         |
+| Keep partition count small          | Too many = slow metadata  |
+| No foreign keys allowed             | MySQL limitation          |
+| Don’t update partition column       | Expensive row movement    |
+
+---
+
+# 🛠️ PARTITION MAINTENANCE
+
+## ➕ Add Next Year
+
+```sql
+ALTER TABLE transactions_partitioned
+ADD PARTITION (
+  PARTITION p2025 VALUES LESS THAN (2026)
+);
+```
+
+## ❌ Drop Old Year
+
+```sql
+ALTER TABLE transactions_partitioned
+DROP PARTITION p2021;
+```
+
+---
+
+# 🚀 GUNSHOT SUMMARY
+
+✅ Use **partitioning for huge tables**
+✅ Use **RANGE(created\_at)** for transactions
+✅ Always include partition key in `PRIMARY KEY`
+✅ Use `EXPLAIN` to verify pruning
+✅ Add/drop partitions yearly or monthly
+
+---
+
+# 📂 FOLDER STRUCTURE (OPTIONAL)
+
+```
+mysql-partitioning/
+├── schema/
+│   └── create_partitioned_table.sql
+├── data/
+│   └── insert_test_data.sql
+├── queries/
+│   ├── verify_partitions.sql
+│   └── explain_partition_query.sql
+└── README.md
+```
+
+---
+
+# 🙌 CONTRIBUTIONS WELCOME
+
+Open issues, suggest improvements, or fork it!
+Let’s scale databases the **right way** 🚀
+
+```
+
+---
+
+✅ This is the **maximum large-size formatting** supported by GitHub Markdown.  
+Let me know if you want this saved as a `.md` file or pushed to your GitHub repo.
+```
