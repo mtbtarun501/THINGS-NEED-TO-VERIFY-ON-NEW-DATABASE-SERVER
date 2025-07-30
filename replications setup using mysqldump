@@ -26,9 +26,12 @@ Send that backuped file to slave -
 
                           On REPLICA:
 
-
+ ======================================================================================================================
+                 TO FIND THE HOW MANY MYSQLD FILES ARE THERE IN A DATABASE:
+             
  grep -r "^\[mysqld\]" /etc/mysql/
 /etc/mysql/mysql.conf.d/mysqld.cnf:[mysqld]
+ ======================================================================================================================
 
 [On slave side -my.cnf option file updated -
 enabled -server-id=2
