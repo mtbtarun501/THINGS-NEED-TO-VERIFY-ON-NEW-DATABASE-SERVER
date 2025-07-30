@@ -8,19 +8,28 @@ enabled -[mysqld]
          binlog_format=ROW
          
          ---save---restarted mysql--]
-         
+  ======================================================================================================================
+        
 [CREATE USER replication IDENTIFIED BY 'password';
 GRANT REPLICATION SLAVE ON *.* TO 'repl'@'%';
 FLUSH PRIVILEGES;]
+ ======================================================================================================================
 
 Take perticular database using mysqldump  [mysqldump -u root -p --all-databases --master-data=2 --single-transaction --routins --triggers --events > full_dump.sql]
+ ======================================================================================================================
 
 Send that backuped file to slave -
 [scp filename.sql user@replica_ip:/tmp/]
 
+ ======================================================================================================================
 
 
                           On REPLICA:
+
+
+ grep -r "^\[mysqld\]" /etc/mysql/
+/etc/mysql/mysql.conf.d/mysqld.cnf:[mysqld]
+
 [On slave side -my.cnf option file updated -
 enabled -server-id=2
          relay-log=replica-relay-bin
@@ -28,7 +37,8 @@ enabled -server-id=2
          reporter-host=replica name]
          [sudo systemctl restart mysql]
          
-         
+   ======================================================================================================================
+       
 restore the backuped file in slave -[mysql -u root -p < /tmp/filename.sql]
 
 For live update on slave side changing master TO*
