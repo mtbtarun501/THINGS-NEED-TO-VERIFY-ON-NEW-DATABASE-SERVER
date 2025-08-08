@@ -204,6 +204,19 @@ WHERE
 ORDER BY 
     OBJECT_NAME, INDEX_NAME;
 ======================================================================================================================
+                  [get the details of the how many read and write happen in particular table]
+                  [first run the command some value get - run again that command some value = total values in between the time space ]
+select 
+     count_read,
+     count_write
+from performance_schema.table_io_waits_summary_by_table
+where 
+     OBJECT_SCHEMA='DataBase'
+AND 
+     OBJECT_NAME='TableName'
+
+
+======================================================================================================================
 
 SELECT 
 object_schema,
