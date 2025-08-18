@@ -1,0 +1,13 @@
+sudo crontab -l -u root
+[after that you will get a path directory]
+sudo head -n 20 copy&past that path 
+---------------------------------------------------------------------
+
+
+
+grep -n "mysqldump" /home/iumprimermepti/*.sh
+
+  
+/home/iumprimermepti/aexpressremit-live.sh:24:mysqldump -uroot -p"7g0Un7&69#4OvuE" aexpressremit_base > "$DB_DUMP_FILE"
+/home/iumprimermepti/eficyent-live.sh:24:mysqldump -uroot -p"7g0Un7&69#4OvuE" eficyent_live > "$DB_DUMP_FILE"
+/home/iumprimermepti/innovata-live.sh:24:mysqldump -uroot -p"7g0Un7&69#4OvuE" efibank_innovata > "$DB_DUMP_FILE"
