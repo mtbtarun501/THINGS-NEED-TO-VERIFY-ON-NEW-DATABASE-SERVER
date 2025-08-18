@@ -15,7 +15,8 @@ GRANT REPLICATION SLAVE ON *.* TO 'repl'@'%';
 FLUSH PRIVILEGES;]
  ======================================================================================================================
 
-Take perticular database using mysqldump  [mysqldump -u root -p --all-databases --master-data=2 --single-transaction --routins --triggers --events > full_dump.sql]
+Take perticular database using mysqldump  [ mysqldump --single-transaction --master-data=2 --routines --triggers --events --all-databases > dump.sql
+]
  ======================================================================================================================
 
 Send that backuped file to slave -
