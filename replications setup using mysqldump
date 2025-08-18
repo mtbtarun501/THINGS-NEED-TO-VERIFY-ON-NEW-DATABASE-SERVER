@@ -15,7 +15,7 @@ GRANT REPLICATION SLAVE ON *.* TO 'repl'@'%';
 FLUSH PRIVILEGES;]
  ======================================================================================================================
 
-Take perticular database using mysqldump  [ mysqldump --single-transaction --master-data=2 --routines --triggers --events --all-databases > dump.sql
+Take perticular full database using mysqldump  [ mysqldump --single-transaction --master-data=2 --routines --triggers --events --all-databases > dump.sql
 ]
  ======================================================================================================================
 
