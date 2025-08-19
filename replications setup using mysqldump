@@ -16,13 +16,18 @@ GRANT REPLICATION SLAVE ON *.* TO 'repl'@'%';
 FLUSH PRIVILEGES;]
  ======================================================================================================================
 
-Take perticular full database using mysqldump  [ mysqldump --single-transaction --master-data=2 --routines --triggers --events --all-databases > dump.sql
-]
+Take perticular full database using mysqldump  
+mysqldump -u root -p --single-transaction --master-data=2 --routines --triggers --events --all-databases > dump.sql
+
+mysqldump -u root -p --single-transacttion --master-data=2 --routines --triggers --events --databases eficyent > single_db.sql
  ======================================================================================================================
 
 Send that backuped file to slave -
+
 [scp filename.sql user@replica_ip:/tmp/]
 
+scp single_db.sql efimarkets@5.189.187.78:/tmp/ 
+                  slave or replica serverid
  ======================================================================================================================
 
 
@@ -44,23 +49,33 @@ enabled -server-id=2
          
    ======================================================================================================================
        
-restore the backuped file in slave -[mysql -u root -p < /tmp/filename.sql]
+  restore the backuped file in slave -[mysql -u root -p < /tmp/filename.sql]
 
-For live update on slave side changing master TO*
+  For live update on slave side changing master TO*
   [CHANGE MASTER TO
   MASTER_HOST='master_ip',--MASTER IP ADDRESS
   MASTER_USER='repl',     --MASTER USER NAME HAVING WITH REPLICATION PRIVILEGES
   MASTER_PASSWORD='repl_pass',  ---USER PASSWORD
   MASTER_LOG_FILE='mysql-bin.00000X',  --FROM MASTER BINLOG FILE ADDRESS
   MASTER_LOG_POS=YYYYYY]   ---FROM MASTER LOG POSITION
+
+          ----------------------------------------------------------------------
+
+CHANGE REPLICATION SOURCE TO
+  SOURCE_HOST = '167.189',   ---------- master ip address        
+  SOURCE_USER = 'replication', --------created user on master side 
+  SOURCE_PASSWORD = '50182786682XTg@', ----------user password
+  SOURCE_LOG_FILE = 'mysql-bin.000006', -----------  
+  SOURCE_LOG_POS = 157,                
+  GET_SOURCE_PUBLIC_KEY = 1; 
   
   
-          START SLAVE ;
-          SHOW SLAVE STATUS;
+  START SLAVE ;
+  SHOW SLAVE STATUS;
           
           
-if you have live update database and if you use mysqldump.
- using this steps
+  if you have live update database and if you use mysqldump.
+  using this steps
  
  
  ======================================================================================================================
@@ -94,7 +109,46 @@ You import the dump to the replica.
 You use the exact binlog file & position from the dump to START REPLICA.
 
 [ https://chatgpt.com/share/685fd3b8-8498-8012-8bb2-41038666c7f9 ]
-          
+
+
+================================================================================================================
+Commands Need To Remember
+To check ip-------------master ec2--------ip a
+To Check how may mysqld files--------------grep -r "^\[mysqld\]" /etc/mysql/
+On Master Side----show master status-----Show Replicas-------- 
+On Replica Side----show replica status\G;
+
+==============================================================================================================
+                                  +==============+
+                                  |On Master Side|
+                                  +=============+
+replication setup on master side 
+server-id              = 1
+log_bin                = /var/log/mysql/mysql-bin.log
+binlog_format          =ROW
+binlog_expire_logs_seconds=2592000
+
+#For Particular DB 
+binlog_do_db            = eficyent_live
+
+#bind-address has need to modify .some times IO-THREAD WON'T CONNECT (TO SOLVE THAT COMMIENT THE BIND-ADDRESS)
+      -------------------------------------------------------------------------------------------
+
+                                  +==============+
+                                  |On Slave Side|
+                                  +=============+
+
+#Slave Configurations
+
+server-id               = 2
+log_bin                 = /var/log/mysql/mysql-bin.log
+# binlog_expire_logs_seconds    = 2592000
+max_binlog_size   = 100M
+binlog_do_db            = eficyent_live
+# binlog_ignore_db      = include_database_name
+relay-log               = /var/log/mysql/mysql-relay-bin.log
+#replicate_do_db         = blog_master
+
 
 
          
