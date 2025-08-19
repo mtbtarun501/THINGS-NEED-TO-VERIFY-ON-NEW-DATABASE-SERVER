@@ -1,0 +1,45 @@
+Replication Breaks  ───► Check SHOW SLAVE STATUS\G
+                        │
+                        ├─► Is it a minor error? (Duplicate key, Missing row, etc.)
+                        │        │
+                        │        ├─► Yes → (99% DBA path)
+                        │        │       - Investigate error
+                        │        │       - Manually fix row/data
+                        │        │       - Or use SQL_SLAVE_SKIP_COUNTER
+                        │        │       - Restart slave
+                        │        │       - Verify replication continues
+                        │        │
+                        │        └─► No → (Major inconsistency / Many errors)
+                        │
+                        └─► (1% DBA path - safest but slowest)
+                                - STOP SLAVE
+                                - Take fresh mysqldump from master
+                                - Restore dump on slave
+                                - Reconfigure replication with CHANGE MASTER TO
+                                - START SLAVE
+                                - Verify status
+
+
+
+
+===================================================================================================
+🔑 Why this is the 1% DBA approach
+
+Simple and safe → avoids risky manual fixes.
+
+Always works → you get a clean sync.
+
+But costly → slow for large DBs, slave is offline during rebuild.
+
+
+
+
+--------------------------------------------------------------
+👉 This is the playbook beginners rely on.
+A 99% DBA (pro) would instead:
+
+Check the specific error,
+
+Fix the inconsistent row (or skip one transaction),
+
+Restart replication without full rebuild.
