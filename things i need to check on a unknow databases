@@ -61,7 +61,7 @@ SELECT table_schema "DB Name",
 FROM information_schema.tables 
 GROUP BY table_schema;
 ====================================================================================
-6️⃣ Slow Queries
+6️⃣ Slow Queries------------
 
 SHOW VARIABLES LIKE 'slow_query_log';
 SHOW VARIABLES LIKE 'slow_query_log_file';
@@ -71,6 +71,34 @@ SHOW VARIABLES LIKE 'long_query_time';
 
 SET GLOBAL slow_query_log = 'ON';
 SET GLOBAL long_query_time = 2;
+
+
+things for slow query--------explain & analyze query------------
+
+ec2------sudo mysqldumpslow -s t slow_query_log path
+
+ec2-----sudo tail -n 20 /var/log/mysql/mysql-slow.log
+
+ec2-----mysqldumpslow -s r -t 10 slow_query_log
+
+<->-------------------slow_query_log is not capturing all queries
+<->----------------Ensure logging is enabled:
+
+SHOW VARIABLES LIKE 'slow_query_log';
+SHOW VARIABLES LIKE 'long_query_time';
+SHOW VARIABLES LIKE 'log_output';
+
+
+Make sure:
+
+------------------slow_query_log = ON
+
+------------------long_query_time is set low enough
+
+------------------log_output = FILE (if you want to use mysqldumpslow)
+
+
+
 ==========================================================================================
 7️⃣ User Privileges (Security Check)
 
